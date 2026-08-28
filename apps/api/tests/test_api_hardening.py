@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -17,6 +18,7 @@ if str(API_DIR) not in sys.path:
     sys.path.insert(0, str(API_DIR))
 
 from app.main import app  # noqa: E402
+from app.config import load_settings  # noqa: E402
 
 
 class TestApiHardening(unittest.TestCase):
@@ -34,6 +36,18 @@ class TestApiHardening(unittest.TestCase):
         self.assertIn("version", body)
         self.assertIn("limits", body)
         self.assertEqual(body["features"]["db_required"], False)
+
+    def test_public_security_headers(self) -> None:
+        response = self.client.get("/health")
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.headers["cache-control"], "no-store")
+        self.assertEqual(response.headers["referrer-policy"], "strict-origin-when-cross-origin")
+        self.assertEqual(response.headers["x-content-type-options"], "nosniff")
+        self.assertEqual(response.headers["x-frame-options"], "DENY")
+
+    def test_public_profile_can_disable_persistence(self) -> None:
+        with patch.dict("os.environ", {"ALLOW_RUN_PERSISTENCE": "false"}):
+            self.assertFalse(load_settings().allow_run_persistence)
 
     def test_import_rejects_non_excel_file(self) -> None:
         response = self.client.post(

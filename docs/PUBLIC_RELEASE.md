@@ -6,12 +6,11 @@ Use these values when the local baseline has been committed and pushed.
 
 - **Description:** Educational Bond + FX valuation demo with guided/Excel
   inputs, USDTRY forwards and an auditable USD NPV.
-- **Website:** leave empty until a hosted demo exists.
+- **Website:** https://bondfx-demo.trail-seahorse.workers.dev
 - **Topics:** `fixed-income`, `bonds`, `foreign-exchange`,
   `quantitative-finance`, `financial-modeling`, `fastapi`, `nextjs`, `python`,
   `typescript`, `educational`.
-- **Social preview:** use `docs/images/demo.png`, cropped to GitHub's preview
-  format if needed.
+- **Social preview:** use `docs/images/social-preview.png`.
 
 ## Recommended repository settings
 
@@ -21,8 +20,8 @@ Use these values when the local baseline has been committed and pushed.
 3. Enable Dependabot alerts, security updates and secret scanning where the
    account plan supports them.
 4. Protect `main`: require the CI workflow and block force pushes.
-5. Do not enable GitHub Pages until the API has a deliberate hosted endpoint;
-   the static frontend alone cannot run valuations.
+5. Keep GitHub Pages disabled; the supported public frontend is the Cloudflare
+   static deployment backed by the Render API.
 
 ## First public release
 

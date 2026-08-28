@@ -35,7 +35,17 @@ BondFX demonstrates how the workflow can be made explicit and repeatable:
 
 ## Try it
 
-The fastest path is Docker:
+Open the hosted public demo:
+
+- **Web app:** https://bondfx-demo.trail-seahorse.workers.dev
+- **API documentation:** https://bondfx-api-laimon99.onrender.com/docs
+
+The frontend is served as free static assets on Cloudflare. The FastAPI service
+runs on a free Render instance and can take up to about a minute to wake after a
+period without traffic. Uploaded workbooks are processed in memory and are not
+persisted by the public deployment.
+
+For an immediate local start, use Docker:
 
 ~~~powershell
 git clone https://github.com/Laimon99/tool-bond.git
@@ -99,9 +109,9 @@ Read [Model limitations](docs/MODEL_LIMITATIONS.md) before interpreting results.
 
 ~~~text
 Next.js UI
-    │
+    │  Cloudflare static assets
     ▼
-FastAPI validation and orchestration
+FastAPI validation and orchestration (Render Free)
     │
     ├── Excel normalization
     ├── JSON Schema contracts

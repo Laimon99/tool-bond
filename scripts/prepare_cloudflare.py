@@ -1,9 +1,8 @@
-"""Build a minimal, generated bundle for the Cloudflare public demo."""
+"""Build the assets-only Cloudflare frontend for the public demo."""
 
 from __future__ import annotations
 
 import argparse
-import json
 import os
 from pathlib import Path
 import shutil
@@ -13,8 +12,8 @@ import subprocess
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BUILD_ROOT = REPO_ROOT / ".cloudflare-build"
-SOURCE_ROOT = BUILD_ROOT / "src"
 PUBLIC_ROOT = BUILD_ROOT / "public"
+DEFAULT_PUBLIC_API_URL = "https://bondfx-api-laimon99.onrender.com"
 
 
 def copy_tree(source: Path, destination: Path) -> None:
@@ -31,18 +30,19 @@ def remove_readonly(func, path, _exc_info) -> None:
     func(path)
 
 
-def build_web() -> None:
+def build_web(api_base_url: str) -> None:
     env = os.environ.copy()
-    env["NEXT_PUBLIC_API_BASE_URL"] = "same-origin"
+    env["NEXT_PUBLIC_API_BASE_URL"] = api_base_url
+    env["NEXT_PUBLIC_PUBLIC_DEMO"] = "true"
     npm = shutil.which("npm")
     if npm is None:
         raise SystemExit("npm is required to build the Cloudflare demo.")
     subprocess.run([npm, "run", "build"], cwd=REPO_ROOT / "apps" / "web", env=env, check=True)
 
 
-def prepare(*, skip_web_build: bool) -> None:
+def prepare(*, skip_web_build: bool, api_base_url: str) -> None:
     if not skip_web_build:
-        build_web()
+        build_web(api_base_url)
 
     web_output = REPO_ROOT / "apps" / "web" / "out"
     if not web_output.is_dir():
@@ -53,37 +53,19 @@ def prepare(*, skip_web_build: bool) -> None:
         if resolved_build_root.parent != REPO_ROOT.resolve():
             raise SystemExit(f"Refusing to replace unexpected path: {resolved_build_root}")
         shutil.rmtree(resolved_build_root, onexc=remove_readonly)
-    SOURCE_ROOT.mkdir(parents=True)
-
-    copy_tree(REPO_ROOT / "apps" / "api" / "app", SOURCE_ROOT / "app")
-    copy_tree(REPO_ROOT / "services" / "quant-engine" / "quant_engine", SOURCE_ROOT / "quant_engine")
     copy_tree(web_output, PUBLIC_ROOT)
-    shutil.copy2(Path(__file__).with_name("worker.py"), SOURCE_ROOT / "worker.py")
-
-    contract_names = (
-        "run_valuation.request.schema.json",
-        "run_valuation.response.schema.json",
-    )
-    contracts = {
-        name: json.loads((REPO_ROOT / "contracts" / name).read_text(encoding="utf-8"))
-        for name in contract_names
-    }
-    bundled_contracts = (
-        '"""Generated from the canonical JSON Schema contracts."""\n\n'
-        f"SCHEMAS = {contracts!r}\n"
-    )
-    (SOURCE_ROOT / "app" / "_bundled_contracts.py").write_text(
-        bundled_contracts,
-        encoding="utf-8",
-        newline="\n",
-    )
 
     file_count = sum(1 for path in BUILD_ROOT.rglob("*") if path.is_file())
-    print(f"Prepared {file_count} runtime files in {BUILD_ROOT}")
+    print(f"Prepared {file_count} static files in {BUILD_ROOT}")
+    print(f"Frontend API target: {api_base_url}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-web-build", action="store_true")
+    parser.add_argument(
+        "--api-base-url",
+        default=os.getenv("BONDFX_PUBLIC_API_URL", DEFAULT_PUBLIC_API_URL),
+    )
     args = parser.parse_args()
-    prepare(skip_web_build=args.skip_web_build)
+    prepare(skip_web_build=args.skip_web_build, api_base_url=args.api_base_url)

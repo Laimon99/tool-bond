@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: bondfx-api-laimon99
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: APP_ENV
+        value: public-demo
+      - key: API_SERVICE_NAME
+        value: bondfx-api
+      - key: API_SERVICE_VERSION
+        value: "0.2.0"
+      - key: CORS_ALLOW_ORIGINS
+        value: "https://bondfx-demo.trail-seahorse.workers.dev"
+      - key: MAX_IMPORT_FILES
+        value: "3"
+      - key: MAX_IMPORT_FILE_BYTES
+        value: "5000000"
+      - key: PERSISTENCE_BACKEND
+        value: memory
+      - key: ALLOW_RUN_PERSISTENCE
+        value: "false"

@@ -16,15 +16,24 @@ app = FastAPI(
     description="Educational API for transparent TRY bond valuation in USD.",
 )
 
-cors_allow_credentials = "*" not in SETTINGS.cors_allow_origins
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(SETTINGS.cors_allow_origins),
-    allow_credentials=cors_allow_credentials,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_public_api_headers(request, call_next):
+    """Apply conservative defaults suitable for the public demo API."""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
 
 
 @app.get("/")

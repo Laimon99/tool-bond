@@ -34,3 +34,10 @@ $env:PERSISTENCE_BACKEND="memory"
 ~~~
 
 The suite uses only synthetic fixtures from ../../examples/demo-data.
+
+## Public deployment
+
+The repository-root `render.yaml` deploys this service as
+`bondfx-api-laimon99` on Render's Free plan. The public profile uses in-memory
+storage, disables run persistence and allows browser requests only from the
+BondFX Cloudflare frontend.

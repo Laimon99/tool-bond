@@ -2,9 +2,20 @@
 
 BondFX keeps the valuation core independent from its delivery channel.
 
-## Web profile (recommended)
+## Hosted web profile
 
-The supported public demo is the Docker Compose stack:
+The public demo separates static and compute workloads:
+
+- Next.js static export: Cloudflare Workers Static Assets;
+- FastAPI, Excel normalization and quantitative engine: Render Free;
+- persistence: disabled for the public deployment.
+
+Deployment settings are versioned in `deploy/cloudflare/wrangler.jsonc` and
+`render.yaml`.
+
+## Local web profile (recommended for development)
+
+The reproducible local stack is:
 
 ~~~powershell
 docker compose up --build

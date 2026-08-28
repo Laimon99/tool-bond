@@ -1,27 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
   "name": "bondfx-demo",
-  "main": "../../.cloudflare-build/src/worker.py",
   "compatibility_date": "2026-08-28",
-  "compatibility_flags": ["python_workers"],
+  "workers_dev": true,
+  "preview_urls": false,
   "assets": {
     "directory": "../../.cloudflare-build/public",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
-  },
-  "vars": {
-    "API_SERVICE_NAME": "bondfx-demo",
-    "API_SERVICE_VERSION": "0.2.0",
-    "APP_ENV": "public-demo",
-    "PERSISTENCE_BACKEND": "memory",
-    "ALLOW_RUN_PERSISTENCE": "false",
-    "MAX_IMPORT_FILES": "3",
-    "MAX_IMPORT_FILE_BYTES": "5000000"
-  },
-  "observability": {
-    "enabled": true
-  },
-  "python_modules": {
-    "excludes": ["**/*.pyc", "**/__pycache__", "**/tests/**"]
   }
 }
