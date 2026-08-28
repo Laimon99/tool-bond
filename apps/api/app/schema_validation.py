@@ -13,8 +13,19 @@ from .config import CONTRACTS_DIR
 
 
 def _load_schema(path: Path) -> Dict[str, Any]:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    if path.is_file():
+        with path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # Wrangler packages Python modules but not arbitrary JSON files. The
+    # Cloudflare staging script generates this module from the canonical
+    # contracts; normal local and container builds continue to use the files.
+    try:
+        from ._bundled_contracts import SCHEMAS
+    except ImportError as exc:  # pragma: no cover - deployment-only fallback
+        raise FileNotFoundError(f"Schema not found: {path}") from exc
+
+    return SCHEMAS[path.name]
 
 
 REQUEST_SCHEMA = _load_schema(CONTRACTS_DIR / "run_valuation.request.schema.json")

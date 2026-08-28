@@ -9,7 +9,7 @@ services:
     environment:
       - APP_ENV=dev
       - API_SERVICE_NAME=tool-bond-api
-      - API_SERVICE_VERSION=0.1.0
+      - API_SERVICE_VERSION=0.2.0
       - CORS_ALLOW_ORIGINS=http://localhost:3000
       - MAX_IMPORT_FILES=10
       - MAX_IMPORT_FILE_BYTES=10000000
