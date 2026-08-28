@@ -1,0 +1,61 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node
+node_modules/
+.next/
+.next-build/
+.next-stale/
+out/
+out-stale/
+dist/
+build/
+coverage/
+*.log
+*.tsbuildinfo
+apps/web/public/demo-data/
+artifacts/desktop-executable/
+artifacts/desktop-standalone/
+apps/desktop/standalone-resources/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.spec
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Local runtime data
+storage/local/*
+!storage/local/.gitkeep
+tmp/
+logs/
+
+# Local development input data
+# Real or client-provided source files must never be committed.
+data/
+
+# Local DB artifacts
+*.db
+*.sqlite
+*.sqlite3
+
+# Internal execution notes (kept locally, not part of the public showcase)
+TECHNICAL_EXECUTION_TRACKER.md
+
+# Browser/QA scratch output
+dogfood-output/
+outputs/

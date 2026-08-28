@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tool-bond.local/schemas/run_valuation.request.schema.json",
+  "title": "RunValuationRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "input_mode",
+    "valuation"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 80,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "input_mode": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "excel_import"
+      ],
+      "description": "Both modes must map to the same valuation payload."
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "Optional in PoC. Kept for future multi-tenant evolution."
+    },
+    "valuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "settlement_date",
+        "usd_budget",
+        "spot_usdtry",
+        "bond",
+        "usd_discount_curve",
+        "fx_forward_curve",
+        "price_input"
+      ],
+      "properties": {
+        "settlement_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "usd_budget": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "spot_usdtry": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "bond": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "coupon_rate_annual",
+            "coupon_frequency",
+            "face_value_per_unit",
+            "issue_date",
+            "maturity_date",
+            "schedule_dates",
+            "day_count"
+          ],
+          "properties": {
+            "coupon_rate_annual": {
+              "type": "number",
+              "minimum": 0
+            },
+            "coupon_frequency": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                4
+              ],
+              "description": "Coupon payments per year."
+            },
+            "face_value_per_unit": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "issue_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "maturity_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "schedule_dates": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "day_count": {
+              "type": "string",
+              "enum": [
+                "ACT/365F"
+              ],
+              "default": "ACT/365F"
+            }
+          }
+        },
+        "usd_discount_curve": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "df_points"
+          ],
+          "properties": {
+            "df_points": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "date",
+                  "df"
+                ],
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "df": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fx_forward_curve": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pillars"
+          ],
+          "properties": {
+            "interpolation": {
+              "type": "string",
+              "enum": [
+                "linear",
+                "loglinear"
+              ],
+              "default": "linear"
+            },
+            "pillars": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "end_date",
+                  "bid",
+                  "ask"
+                ],
+                "properties": {
+                  "end_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "bid": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "ask": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "price_input": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "clean_price",
+                "ytm"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "bid_ask_bps": {
+              "type": "number"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "clean_price"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 200
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "ytm"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "include_breakdown": {
+              "type": "boolean",
+              "default": true
+            },
+            "persist_run": {
+              "type": "boolean",
+              "default": false
+            },
+            "rounding_decimals": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8,
+              "default": 6
+            },
+            "fx_rate_side": {
+              "type": "string",
+              "enum": [
+                "mid",
+                "bid",
+                "ask"
+              ],
+              "default": "ask",
+              "description": "USDTRY rate used to convert TRY cash flows into USD. Ask is the conservative executable side when buying USD."
+            }
+          }
+        }
+      }
+    }
+  }
+}

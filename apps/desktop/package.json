@@ -1,0 +1,56 @@
+{
+  "name": "tool-bond-desktop-shell",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "prepare:standalone": "powershell -ExecutionPolicy Bypass -File ../../scripts/build_standalone_assets.ps1",
+    "build:win": "npm run build:win:standalone",
+    "build:win:standalone": "npm run prepare:standalone && electron-builder --win portable --x64"
+  },
+  "build": {
+    "appId": "com.toolbond.desktop",
+    "productName": "Tool Bond Desktop",
+    "directories": {
+      "output": "../../artifacts/desktop-standalone"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "standalone-resources/web",
+        "to": "web",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "standalone-resources/bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "extraMetadata": {
+      "main": "main.js"
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "portable"
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "44.0.0",
+    "electron-builder": "26.15.3"
+  }
+}

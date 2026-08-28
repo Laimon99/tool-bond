@@ -1,0 +1,27 @@
+{
+  "name": "tool-bond-web",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "predev": "node scripts/sync-demo-data.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/sync-demo-data.mjs",
+    "build": "next build",
+    "start": "serve -s out",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "serve": "14.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "@types/react": "19.2.18",
+    "typescript": "5.9.3"
+  }
+}

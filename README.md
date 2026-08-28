@@ -1,99 +1,191 @@
-# Tool Bond Platform
+# BondFX
 
-## In breve
-Tool Bond Platform e un prodotto per valutare investimenti in bond in valuta estera (es. bond in TRY) e capire il risultato finale in USD con copertura del rischio cambio.
+[![CI](https://github.com/Laimon99/tool-bond/actions/workflows/ci.yml/badge.svg)](https://github.com/Laimon99/tool-bond/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-167D78.svg)](LICENSE)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-17233C.svg)](https://www.python.org/)
 
-Obiettivo pratico: trasformare file e analisi oggi sparsi in Excel/PDF in uno strumento unico, chiaro e ripetibile, usabile anche da team non tecnici.
+BondFX is an educational proof of concept that estimates the USD present value
+of a TRY-denominated bond whose future cash flows are converted through a
+USDTRY forward curve.
 
-Approccio attuale: **PoC first**. Prima facciamo funzionare bene il cuore del calcolo, poi aggiungiamo la base piattaforma (profili, auth, database completo multi-cliente).
+It is designed as a transparent, reproducible finance-engineering demo:
 
-## A chi serve
-- Team finanza e investment
-- Team product/design che deve spiegare il valore al cliente
-- Team commerciale che prepara proposte e report
+- **input:** guided values or three synthetic Excel workbooks;
+- **output:** invested TRY notional, hedged USD cash flows, USD present value
+  and NPV versus the initial USD budget;
+- **audience:** finance engineers, quantitative developers and product teams
+  exploring explainable valuation workflows.
 
-## Quale problema risolve
-Oggi il processo tipico e:
-- dati in piu file (storici bond, curve FX, documenti termsheet)
-- passaggi manuali in Excel
-- difficolta a riprodurre lo stesso risultato nel tempo
+> **Educational use only.** BondFX is not investment advice, a trading system,
+> an executable market quote or a production pricing library.
 
-Il tool centralizza tutto e risponde a domande chiave:
-- Quanto rende davvero il bond se copro il cambio?
-- Quali ipotesi sto usando?
-- Cosa cambia se modifico curve, prezzo o scenario?
+![BondFX demo](docs/images/demo.png)
 
-## Cosa fara il primo MVP (sui file reali gia presenti)
-Il primo MVP sara costruito per funzionare sui dataset attuali in `../ex`:
-- `Bond_curve.xlsx`
-- `bond_storico.xlsx`
-- `Bond_tURCO.xlsx`
-- `Curve_swap.xlsx`
-- `FX POLLS_25-Feb-2026.xls.xlsx`
-- `document.pdf`
+## Why this project exists
 
-Funzioni MVP:
-1. Import guidato dei file
-2. Inserimento manuale degli stessi dati da interfaccia (senza Excel)
-3. Validazione automatica (date, colonne, valori mancanti, coerenza numerica)
-4. Calcolo NPV in USD del bond TRY coperto FX
-5. Breakdown leggibile dei risultati (cash flow, curva usata, ipotesi)
-6. Export report (Excel/PDF)
+Cross-currency bond analysis is often spread across workbooks and manual steps.
+BondFX demonstrates how the workflow can be made explicit and repeatable:
 
-Per il PoC non e previsto:
-- sistema profili utenti completo;
-- gestione auth/permessi enterprise;
-- database complesso come prerequisito per partire.
+1. normalize manual or Excel inputs to one JSON contract;
+2. validate every request;
+3. generate the bond cash-flow schedule;
+4. convert TRY cash flows with selected USDTRY forward rates;
+5. discount the resulting USD cash flows;
+6. expose the assumptions and a cash-flow-level audit trail.
 
-## Come lo usera un utente non tecnico
-1. Sceglie modalita input: upload file oppure inserimento manuale guidato
-2. Controlla la schermata di validazione
-3. Seleziona scenario (base o personalizzato)
-4. Avvia il calcolo
-5. Legge il risultato in dashboard + scarica il report
+## Try it
 
-## Visione prodotto: piattaforma riciclabile per piu clienti
-Il prodotto nasce con una struttura modulare:
+The fastest path is Docker:
 
-### Core comune (riusabile)
-- Motore di calcolo bond+FX
-- Gestione scenari
-- Input layer unificato (import file + inserimento manuale + API connector)
-- Validazione dati
-- Audit e tracciabilita
-- Dashboard e report base
+~~~powershell
+git clone https://github.com/Laimon99/tool-bond.git
+cd tool-bond
+docker compose up --build
+~~~
 
-### Parti custom per cliente
-- Regole di pricing specifiche
-- Convenzioni e calendari
-- Campi input, wizard e form specifici per cliente
-- Template report personalizzati
-- Integrazioni con provider o sistemi del cliente
+Then open:
 
-Principio chiave: stesso scheletro, personalizzazioni separate. No fork del progetto per ogni cliente.
+- Web app: http://localhost:3000
+- API documentation: http://localhost:8000/docs
+- Health check: http://localhost:8000/health
 
-Nota: nel PoC alcune parti restano semplificate (ad esempio persistenza minima su file locali). Lo skeleton modulare viene comunque mantenuto per evolvere rapidamente alla versione piattaforma.
+The app starts with a complete synthetic scenario. Select **Run the example** to
+calculate it immediately.
 
-## Architettura (in parole semplici)
-- Frontend web: interfaccia utente moderna
-- Backend API: coordina dati e processi
-- Motore quantitativo Python: esegue i calcoli finanziari
-- Persistenza PoC: file locali JSON/CSV (semplice e veloce)
-- Database (fase successiva): salva scenari, input, output e storico in modo enterprise
+### Try the Excel flow
 
-Stack tecnico PoC:
-- Next.js + TypeScript (interfaccia)
-- FastAPI (backend)
-- Python quant engine (calcoli)
+Download or select these three committed synthetic files together:
 
-Stack evolutivo (dopo PoC):
-- PostgreSQL/Timescale + Redis (dati e job)
-- Auth/RBAC e funzioni multi-tenant
+- [Curve_swap.xlsx](examples/demo-data/Curve_swap.xlsx)
+- [bond_storico.xlsx](examples/demo-data/bond_storico.xlsx)
+- [Bond_tURCO.xlsx](examples/demo-data/Bond_tURCO.xlsx)
 
-## Stato attuale
-- Repo inizializzata
-- Definizione funzionale e architetturale completata
-- Prossimo passo: sviluppo MVP sui file reali + struttura multi-cliente
+The files contain no client data, proprietary data or live market observations.
 
-## Documento roadmap
-La pianificazione completa e nel file [ROADMAP.md](./ROADMAP.md).
+## Independently checkable example
+
+[verified-example.xlsx](examples/demo-data/verified-example.xlsx) derives a
+one-period zero-coupon case using visible spreadsheet formulas:
+
+~~~text
+TRY notional = 100,000 USD × 40 USDTRY = 4,000,000 TRY
+PV USD       = 4,000,000 TRY ÷ 50 forward ask × 0.95 DF = 76,000 USD
+NPV USD      = 76,000 − 100,000 = −24,000 USD
+~~~
+
+The same example is asserted independently in the Python test suite.
+See [Validation](docs/VALIDATION.md) for the complete evidence chain.
+
+## Model conventions
+
+The current public contract deliberately supports a narrow scope:
+
+- USDTRY means TRY per USD;
+- the default conversion side is ask, representing the conservative rate
+  used when buying USD with TRY;
+- supported coupon frequencies are annual, semi-annual and quarterly;
+- day count is ACT/365 Fixed;
+- discount factors are interpolated log-linearly;
+- FX forwards support linear or log-linear interpolation;
+- curve endpoints are held flat and generate an explicit warning;
+- NPV is defined as hedged USD cash-flow PV minus the initial USD budget.
+
+Every successful API response includes these conventions in
+result.model_assumptions.
+
+Read [Model limitations](docs/MODEL_LIMITATIONS.md) before interpreting results.
+
+## Architecture
+
+~~~text
+Next.js UI
+    │
+    ▼
+FastAPI validation and orchestration
+    │
+    ├── Excel normalization
+    ├── JSON Schema contracts
+    └── persistence adapter (memory by default)
+            │
+            ▼
+Python quantitative engine
+~~~
+
+The same request contract is used by manual input and Excel import. See
+[Architecture](docs/ARCHITECTURE.md) and
+[Run valuation contract](contracts/RUN_VALUATION_CONTRACT.md).
+
+## Local development
+
+### API
+
+~~~powershell
+cd apps/api
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:PERSISTENCE_BACKEND="memory"
+python -m uvicorn app.main:app --reload --port 8000
+~~~
+
+### Web
+
+Node.js 22.12 or newer is recommended.
+
+~~~powershell
+cd apps/web
+npm ci
+$env:NEXT_PUBLIC_API_BASE_URL="http://localhost:8000"
+npm run dev
+~~~
+
+### Quality gates
+
+~~~powershell
+cd apps/api
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+
+cd ../web
+npm run typecheck
+npm run build
+
+cd ../..
+docker compose config --quiet
+~~~
+
+CI runs the same public test suite from a clean checkout.
+
+## Repository map
+
+~~~text
+apps/
+  api/             FastAPI service and tests
+  web/             Next.js public demo
+  desktop/         optional Electron wrapper
+contracts/         versioned request/response JSON Schemas
+examples/          synthetic demo and validation workbooks
+services/
+  quant-engine/    framework-independent valuation core
+docs/              architecture, validation and model scope
+~~~
+
+## Privacy and security
+
+- Real/client source files under data/ are ignored.
+- Runtime artifacts, uploaded data and local runs are ignored.
+- The default Docker profile uses in-memory persistence.
+- Do not submit confidential workbooks in issues or pull requests.
+
+See [Security policy](SECURITY.md).
+
+## Project status
+
+BondFX is a complete public PoC, not a production valuation platform. Planned
+extensions are tracked in [ROADMAP.md](ROADMAP.md). Maintainers can use the
+[public-release settings](docs/PUBLIC_RELEASE.md) and
+[release checklist](RELEASE_BASELINE_CHECKLIST.md) before changing repository
+visibility.
+
+## License
+
+Released under the [MIT License](LICENSE).

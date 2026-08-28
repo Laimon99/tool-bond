@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tool-bond-quant-engine"
+version = "0.1.0"
+description = "Transparent quantitative core for the BondFX educational PoC"
+requires-python = ">=3.12"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quant_engine*"]

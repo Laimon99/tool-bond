@@ -1,0 +1,12 @@
+{
+  "settlement_date": "2026-02-20",
+  "spot_usdtry": 43.76,
+  "spot_tolerance": 0.000001,
+  "clean_price": 90.0,
+  "price_tolerance": 0.000001,
+  "fx_pillars": 4,
+  "df_points": 3,
+  "npv_usd": -2294.621974,
+  "npv_tolerance": 0.000001,
+  "cashflow_count": 3
+}

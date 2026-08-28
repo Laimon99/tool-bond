@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tool-bond.local/schemas/run_valuation.response.schema.json",
+  "title": "RunValuationResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "status",
+    "timestamps",
+    "input_summary",
+    "result",
+    "errors",
+    "warnings"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 80
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed"
+      ]
+    },
+    "timestamps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "input_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_mode",
+        "settlement_date",
+        "price_input_type",
+        "fx_interpolation",
+        "fx_rate_side",
+        "cashflow_count"
+      ],
+      "properties": {
+        "input_mode": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "excel_import"
+          ]
+        },
+        "settlement_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "price_input_type": {
+          "type": "string",
+          "enum": [
+            "clean_price",
+            "ytm"
+          ]
+        },
+        "fx_interpolation": {
+          "type": "string",
+          "enum": [
+            "linear",
+            "loglinear"
+          ]
+        },
+        "fx_rate_side": {
+          "type": "string",
+          "enum": [
+            "mid",
+            "bid",
+            "ask"
+          ]
+        },
+        "cashflow_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "result": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "notional_try",
+        "units",
+        "dirty_price_percent",
+        "pv_usd_total",
+        "npv_usd",
+        "model_assumptions"
+      ],
+      "properties": {
+        "notional_try": {
+          "type": "number"
+        },
+        "units": {
+          "type": "number"
+        },
+        "dirty_price_percent": {
+          "type": "number"
+        },
+        "pv_usd_total": {
+          "type": "number"
+        },
+        "npv_usd": {
+          "type": "number"
+        },
+        "model_assumptions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "day_count",
+            "coupon_frequency",
+            "fx_quote_convention",
+            "fx_rate_side",
+            "fx_interpolation",
+            "discount_factor_interpolation",
+            "curve_extrapolation",
+            "npv_definition"
+          ],
+          "properties": {
+            "day_count": {
+              "type": "string"
+            },
+            "coupon_frequency": {
+              "type": "integer"
+            },
+            "fx_quote_convention": {
+              "type": "string"
+            },
+            "fx_rate_side": {
+              "type": "string"
+            },
+            "fx_interpolation": {
+              "type": "string"
+            },
+            "discount_factor_interpolation": {
+              "type": "string"
+            },
+            "curve_extrapolation": {
+              "type": "string"
+            },
+            "npv_definition": {
+              "type": "string"
+            }
+          }
+        },
+        "breakdown": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "date",
+              "try_cashflow",
+              "fwd_usdtry_rate",
+              "fx_rate_side",
+              "usd_cashflow",
+              "usd_df",
+              "pv_usd"
+            ],
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "try_cashflow": {
+                "type": "number"
+              },
+              "fwd_usdtry_rate": {
+                "type": "number"
+              },
+              "fx_rate_side": {
+                "type": "string",
+                "enum": [
+                  "mid",
+                  "bid",
+                  "ask"
+                ]
+              },
+              "usd_cashflow": {
+                "type": "number"
+              },
+              "usd_df": {
+                "type": "number"
+              },
+              "pv_usd": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "persisted": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "backend": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "success"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "result": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "result": {
+            "type": "null"
+          },
+          "errors": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

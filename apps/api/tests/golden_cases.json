@@ -1,0 +1,176 @@
+{
+  "cases": [
+    {
+      "case_id": "manual_clean_price_base",
+      "request": {
+        "request_id": "golden_manual_clean_001",
+        "input_mode": "manual",
+        "valuation": {
+          "settlement_date": "2026-02-20",
+          "usd_budget": 100000.0,
+          "spot_usdtry": 43.76245,
+          "bond": {
+            "coupon_rate_annual": 0.275,
+            "coupon_frequency": 1,
+            "face_value_per_unit": 10000.0,
+            "issue_date": "2023-03-06",
+            "maturity_date": "2028-03-06",
+            "schedule_dates": [
+              "2024-03-06",
+              "2025-03-06",
+              "2026-03-06",
+              "2027-03-06",
+              "2028-03-06"
+            ],
+            "day_count": "ACT/365F"
+          },
+          "usd_discount_curve": {
+            "df_points": [
+              {
+                "date": "2026-03-06",
+                "df": 0.995
+              },
+              {
+                "date": "2027-03-06",
+                "df": 0.955
+              },
+              {
+                "date": "2028-03-06",
+                "df": 0.91
+              }
+            ]
+          },
+          "fx_forward_curve": {
+            "interpolation": "linear",
+            "pillars": [
+              {
+                "end_date": "2026-03-06",
+                "bid": 44.2,
+                "ask": 44.3
+              },
+              {
+                "end_date": "2027-03-06",
+                "bid": 58.0,
+                "ask": 58.1
+              },
+              {
+                "end_date": "2028-03-06",
+                "bid": 75.0,
+                "ask": 75.2
+              }
+            ]
+          },
+          "price_input": {
+            "type": "clean_price",
+            "value": 90.0
+          },
+          "options": {
+            "include_breakdown": true,
+            "persist_run": false,
+            "rounding_decimals": 6,
+            "fx_rate_side": "ask"
+          }
+        }
+      },
+      "expected": {
+        "npv_usd": -1814.302593,
+        "pv_usd_total": 98185.697407,
+        "dirty_price_percent": 116.445205,
+        "notional_try": 3758201.105817,
+        "cashflow_count": 3
+      },
+      "tolerances": {
+        "npv_usd": 0.000001,
+        "pv_usd_total": 0.000001,
+        "dirty_price_percent": 0.000001,
+        "notional_try": 0.000001
+      }
+    },
+    {
+      "case_id": "manual_ytm_base",
+      "request": {
+        "request_id": "golden_manual_ytm_001",
+        "input_mode": "manual",
+        "valuation": {
+          "settlement_date": "2026-02-20",
+          "usd_budget": 85000.0,
+          "spot_usdtry": 43.76245,
+          "bond": {
+            "coupon_rate_annual": 0.275,
+            "coupon_frequency": 1,
+            "face_value_per_unit": 10000.0,
+            "issue_date": "2023-03-06",
+            "maturity_date": "2028-03-06",
+            "schedule_dates": [
+              "2024-03-06",
+              "2025-03-06",
+              "2026-03-06",
+              "2027-03-06",
+              "2028-03-06"
+            ],
+            "day_count": "ACT/365F"
+          },
+          "usd_discount_curve": {
+            "df_points": [
+              {
+                "date": "2026-03-06",
+                "df": 0.995
+              },
+              {
+                "date": "2027-03-06",
+                "df": 0.955
+              },
+              {
+                "date": "2028-03-06",
+                "df": 0.91
+              }
+            ]
+          },
+          "fx_forward_curve": {
+            "interpolation": "linear",
+            "pillars": [
+              {
+                "end_date": "2026-03-06",
+                "bid": 44.2,
+                "ask": 44.3
+              },
+              {
+                "end_date": "2027-03-06",
+                "bid": 58.0,
+                "ask": 58.1
+              },
+              {
+                "end_date": "2028-03-06",
+                "bid": 75.0,
+                "ask": 75.2
+              }
+            ]
+          },
+          "price_input": {
+            "type": "ytm",
+            "value": 0.125
+          },
+          "options": {
+            "include_breakdown": true,
+            "persist_run": false,
+            "rounding_decimals": 6,
+            "fx_rate_side": "ask"
+          }
+        }
+      },
+      "expected": {
+        "npv_usd": -30528.409976,
+        "pv_usd_total": 54471.590024,
+        "dirty_price_percent": 178.409803,
+        "notional_try": 2084979.74013,
+        "cashflow_count": 3
+      },
+      "tolerances": {
+        "npv_usd": 0.000001,
+        "pv_usd_total": 0.000001,
+        "dirty_price_percent": 0.000001,
+        "notional_try": 0.000001
+      }
+    }
+  ]
+}

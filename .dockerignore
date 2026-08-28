@@ -1,0 +1,32 @@
+# VCS
+.git
+.gitignore
+.github
+
+# Local environments
+**/.venv
+**/__pycache__
+**/.pytest_cache
+
+# Node artifacts
+**/node_modules
+**/.next
+**/dist
+**/build
+**/coverage
+**/out
+**/*.tsbuildinfo
+
+# Local runtime and logs
+storage/local/*
+!storage/local/.gitkeep
+tmp
+logs
+
+# Local datasets not needed for image build
+data
+
+# Local packaging outputs and internal notes
+artifacts
+apps/desktop/standalone-resources
+TECHNICAL_EXECUTION_TRACKER.md
