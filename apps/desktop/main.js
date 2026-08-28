@@ -157,7 +157,7 @@ async function ensureBackendStarted() {
       ...process.env,
       APP_ENV: "desktop",
       API_SERVICE_NAME: "tool-bond-api",
-      API_SERVICE_VERSION: "0.1.0-standalone",
+      API_SERVICE_VERSION: "0.2.0-standalone",
       TOOL_BOND_API_HOST: API_HOST,
       TOOL_BOND_API_PORT: String(API_PORT),
       CORS_ALLOW_ORIGINS: "*",

@@ -10,6 +10,11 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . /workspace
 
+RUN useradd --create-home --uid 10001 bondfx \
+    && chown -R bondfx:bondfx /workspace
+
+USER bondfx
+
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

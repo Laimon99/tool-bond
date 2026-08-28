@@ -59,3 +59,9 @@ TECHNICAL_EXECUTION_TRACKER.md
 # Browser/QA scratch output
 dogfood-output/
 outputs/
+# Generated Cloudflare deployment bundle.
+.cloudflare-build/
+.tooling/
+.venv-workers/
+deploy/cloudflare/.wrangler/
+deploy/cloudflare/python_modules/

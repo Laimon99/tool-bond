@@ -1,0 +1,11 @@
+{
+  "name": "bondfx-cloudflare-deployment",
+  "private": true,
+  "version": "0.2.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "wrangler": "4.127.0"
+  }
+}

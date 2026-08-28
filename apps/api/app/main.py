@@ -16,19 +16,28 @@ app = FastAPI(
     description="Educational API for transparent TRY bond valuation in USD.",
 )
 
-cors_allow_credentials = "*" not in SETTINGS.cors_allow_origins
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(SETTINGS.cors_allow_origins),
-    allow_credentials=cors_allow_credentials,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+@app.middleware("http")
+async def add_public_api_headers(request, call_next):
+    """Apply conservative defaults suitable for the public demo API."""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
+
+
 @app.get("/")
-def root() -> dict:
+async def root() -> dict:
     return {
         "service": SETTINGS.service_name,
         "version": SETTINGS.service_version,
@@ -39,7 +48,7 @@ def root() -> dict:
 
 
 @app.get("/health")
-def health() -> dict:
+async def health() -> dict:
     return {
         "status": "healthy",
         "service": SETTINGS.service_name,
@@ -49,7 +58,7 @@ def health() -> dict:
 
 
 @app.get("/meta")
-def meta() -> dict:
+async def meta() -> dict:
     return {
         "service": SETTINGS.service_name,
         "version": SETTINGS.service_version,
@@ -61,18 +70,19 @@ def meta() -> dict:
         "features": {
             "db_required": False,
             "persistence_mode_default": SETTINGS.persistence_backend,
+            "run_persistence_enabled": SETTINGS.allow_run_persistence,
         },
     }
 
 
 @app.post("/run-valuation")
-def run_valuation_endpoint(payload: Dict[str, Any], client_id: str | None = None) -> JSONResponse:
+async def run_valuation_endpoint(payload: Dict[str, Any], client_id: str | None = None) -> JSONResponse:
     response, status_code = run_valuation_with_client_adapter(payload, client_id=client_id)
     return JSONResponse(content=response, status_code=status_code)
 
 
 @app.get("/runs/{run_id}")
-def get_run_endpoint(run_id: str) -> JSONResponse:
+async def get_run_endpoint(run_id: str) -> JSONResponse:
     response, status_code = get_run(run_id)
     return JSONResponse(content=response, status_code=status_code)
 

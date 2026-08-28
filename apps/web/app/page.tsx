@@ -2,7 +2,10 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = configuredApiBaseUrl === "same-origin" ? "" : configuredApiBaseUrl;
+const API_DISPLAY_URL = API_BASE_URL || "same origin";
+const IS_PUBLIC_DEMO = process.env.NEXT_PUBLIC_PUBLIC_DEMO === "true";
 
 type JsonObject = Record<string, unknown>;
 type JsonValue = JsonObject | null;
@@ -379,7 +382,7 @@ export default function HomePage() {
       setLastResponse(json);
       window.setTimeout(() => document.querySelector("#results")?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch (error) {
-      setErrorText(`Could not reach the API at ${API_BASE_URL}. ${String(error)}`);
+      setErrorText(`Could not reach the API at ${API_DISPLAY_URL}. ${String(error)}`);
     } finally {
       setIsLoading(false);
     }
@@ -467,7 +470,7 @@ export default function HomePage() {
             <button className="button primary" type="button" onClick={runExample} disabled={isLoading}>{isLoading ? "Calculating…" : "Run the example"}</button>
             <a className="button secondary" href="#method">See the method</a>
           </div>
-          <p className="microcopy">Synthetic inputs · No sign-up · Results are not persisted by default</p>
+          <p className="microcopy">Synthetic inputs · No sign-up · {IS_PUBLIC_DEMO ? "Results are not persisted" : "Results are not persisted by default"}</p>
         </div>
         <aside className="hero-card" aria-label="Valuation workflow summary">
           <p className="card-kicker">One contract, two input paths</p>
@@ -486,7 +489,7 @@ export default function HomePage() {
       </section>
 
       <section className="workspace" id="workspace">
-        <div className="section-heading"><div><p className="eyebrow">Interactive demo</p><h2>Build a valuation</h2></div><span className="api-status">API: {API_BASE_URL}</span></div>
+        <div className="section-heading"><div><p className="eyebrow">Interactive demo</p><h2>Build a valuation</h2></div><span className="api-status">API: {API_DISPLAY_URL}</span></div>
 
         <div className="tabs" role="tablist" aria-label="Input method">
           <button role="tab" aria-selected={activeTab === "manual"} className={activeTab === "manual" ? "active" : ""} onClick={() => switchTab("manual")} type="button">Guided inputs</button>
@@ -495,7 +498,7 @@ export default function HomePage() {
 
         {activeTab === "manual" ? (
           <form onSubmit={handleManualSubmit} className="form-panel">
-            <div className="form-intro"><h3>Core scenario</h3><p>The demo is pre-filled with synthetic values. Change any field or run it as-is.</p></div>
+            <div className="form-intro"><h3>Core scenario</h3><p>The demo is pre-filled with synthetic values. Change any field or run it as-is.{IS_PUBLIC_DEMO ? " The free API may need up to about a minute to wake after inactivity." : ""}</p></div>
             <div className="input-grid four">
               <InputField label="USD budget"><input type="number" min="0.01" step="any" value={manualForm.usdBudget} onChange={(e) => updateManual("usdBudget", e.target.value)} /></InputField>
               <InputField label="Spot USDTRY" hint="TRY per USD"><input type="number" min="0.01" step="any" value={manualForm.spotUsdTry} onChange={(e) => updateManual("spotUsdTry", e.target.value)} /></InputField>
@@ -529,7 +532,7 @@ export default function HomePage() {
                 </div>
                 <div className="check-row">
                   <label><input type="checkbox" checked={manualForm.includeBreakdown} onChange={(e) => updateManual("includeBreakdown", e.target.checked)} /> Include cash-flow breakdown</label>
-                  <label><input type="checkbox" checked={manualForm.persistRun} onChange={(e) => updateManual("persistRun", e.target.checked)} /> Persist this run locally</label>
+                  <label><input type="checkbox" checked={manualForm.persistRun} disabled={IS_PUBLIC_DEMO} onChange={(e) => updateManual("persistRun", e.target.checked)} /> {IS_PUBLIC_DEMO ? "Persistence disabled in public demo" : "Persist this run locally"}</label>
                 </div>
               </div>
             </details>
@@ -584,7 +587,7 @@ export default function HomePage() {
         )}
 
         <details className="technical" open={showTechnicalDetails} onToggle={(e) => setShowTechnicalDetails(e.currentTarget.open)}>
-          <summary>Technical JSON and endpoint</summary><p>API endpoint: {API_BASE_URL}</p>
+          <summary>Technical JSON and endpoint</summary><p>API endpoint: {API_DISPLAY_URL}</p>
           <h3>Normalized request</h3><pre>{normalizedPayload ? JSON.stringify(normalizedPayload, null, 2) : "Available after an Excel import."}</pre>
           <h3>Latest response</h3><pre>{lastResponse ? JSON.stringify(lastResponse, null, 2) : "Available after a run."}</pre>
         </details>

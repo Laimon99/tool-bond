@@ -7,7 +7,7 @@ from typing import Any, Dict, Tuple
 import uuid
 
 # Import config first to initialize local PYTHONPATH bootstrap for quant_engine.
-from .config import QUANT_ENGINE_SRC  # noqa: F401
+from .config import QUANT_ENGINE_SRC, SETTINGS  # noqa: F401
 from quant_engine import run_valuation
 
 from .run_storage import load_run_response, save_run_artifact
@@ -106,7 +106,7 @@ def execute_run(payload: Dict[str, Any]) -> Tuple[Dict[str, Any], int]:
 
     valuation_opts = payload.get("valuation", {}).get("options", {})
     include_breakdown = valuation_opts.get("include_breakdown", True)
-    persist_run = valuation_opts.get("persist_run", False)
+    persist_run = bool(valuation_opts.get("persist_run", False)) and SETTINGS.allow_run_persistence
     rounding_decimals = int(valuation_opts.get("rounding_decimals", 6))
 
     try:
