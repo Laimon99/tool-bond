@@ -4,63 +4,48 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-167D78.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-17233C.svg)](https://www.python.org/)
 
-BondFX is an educational proof of concept that estimates the USD present value
-of a TRY-denominated bond whose future cash flows are converted through a
-USDTRY forward curve.
+BondFX turns a Turkish-lira bond into an auditable USD valuation, showing each
+cash flow, currency conversion and discounting step.
 
-It is designed as a transparent, reproducible finance-engineering demo:
+**[Try the live demo](https://bondfx-demo.trail-seahorse.workers.dev/)** ·
+[See how the result is verified](#verification)
 
-- **input:** guided values or three synthetic Excel workbooks;
-- **output:** invested TRY notional, hedged USD cash flows, USD present value
-  and NPV versus the initial USD budget;
-- **audience:** finance engineers, quantitative developers and product teams
-  exploring explainable valuation workflows.
+![BondFX demo](docs/images/demo.png)
 
 > **Educational use only.** BondFX is not investment advice, a trading system,
 > an executable market quote or a production pricing library.
 
-![BondFX demo](docs/images/demo.png)
+## Project in 30 seconds
 
-## Why this project exists
+- **Problem:** cross-currency bond analysis is often split across spreadsheets
+  and manual calculations that are difficult to audit.
+- **Input:** use a guided example or import three synthetic Excel workbooks.
+- **Output:** see the TRY amount invested, the USD value of every hedged cash
+  flow, the total present value and the NPV versus the initial USD budget.
+- **Value:** assumptions, warnings and intermediate calculations remain visible
+  instead of being hidden inside a black-box result.
 
-Cross-currency bond analysis is often spread across workbooks and manual steps.
-BondFX demonstrates how the workflow can be made explicit and repeatable:
+## What this project demonstrates
 
-1. normalize manual or Excel inputs to one JSON contract;
-2. validate every request;
-3. generate the bond cash-flow schedule;
-4. convert TRY cash flows with selected USDTRY forward rates;
-5. discount the resulting USD cash flows;
-6. expose the assumptions and a cash-flow-level audit trail.
+- **Finance engineering:** bond schedules, forward FX conversion, discounting
+  and explicit model conventions.
+- **Explainable product design:** one workflow for guided inputs and Excel
+  imports, with a cash-flow-level audit trail.
+- **Full-stack delivery:** a Next.js interface, a FastAPI service and a
+  framework-independent Python valuation engine.
+- **Reproducibility:** synthetic data, versioned JSON contracts, an independently
+  checkable spreadsheet and automated tests in CI.
 
 ## Try it
 
-Open the hosted public demo:
+Open the **[hosted public demo](https://bondfx-demo.trail-seahorse.workers.dev/)**
+and select **Run the example**. The app starts with a complete synthetic
+scenario, so no files or configuration are required.
 
-- **Web app:** https://bondfx-demo.trail-seahorse.workers.dev
-- **API documentation:** https://bondfx-api-laimon99.onrender.com/docs
-
-The frontend is served as free static assets on Cloudflare. The FastAPI service
-runs on a free Render instance and can take up to about a minute to wake after a
-period without traffic. Uploaded workbooks are processed in memory and are not
-persisted by the public deployment.
-
-For an immediate local start, use Docker:
-
-~~~powershell
-git clone https://github.com/Laimon99/tool-bond.git
-cd tool-bond
-docker compose up --build
-~~~
-
-Then open:
-
-- Web app: http://localhost:3000
-- API documentation: http://localhost:8000/docs
-- Health check: http://localhost:8000/health
-
-The app starts with a complete synthetic scenario. Select **Run the example** to
-calculate it immediately.
+The [API documentation](https://bondfx-api-laimon99.onrender.com/docs) is also
+public. The FastAPI service runs on a free Render instance and can take up to
+about a minute to wake after a period without traffic. Uploaded workbooks are
+processed in memory and are not persisted by the public deployment.
 
 ### Try the Excel flow
 
@@ -72,7 +57,18 @@ Download or select these three committed synthetic files together:
 
 The files contain no client data, proprietary data or live market observations.
 
-## Independently checkable example
+## How BondFX works
+
+BondFX makes the valuation workflow explicit and repeatable:
+
+1. normalize manual or Excel inputs to one JSON contract;
+2. validate every request;
+3. generate the bond cash-flow schedule;
+4. convert TRY cash flows with selected USDTRY forward rates;
+5. discount the resulting USD cash flows;
+6. return the assumptions, warnings and cash-flow-level audit trail.
+
+## Verification
 
 [verified-example.xlsx](examples/demo-data/verified-example.xlsx) derives a
 one-period zero-coupon case using visible spreadsheet formulas:
@@ -83,27 +79,8 @@ PV USD       = 4,000,000 TRY ÷ 50 forward ask × 0.95 DF = 76,000 USD
 NPV USD      = 76,000 − 100,000 = −24,000 USD
 ~~~
 
-The same example is asserted independently in the Python test suite.
-See [Validation](docs/VALIDATION.md) for the complete evidence chain.
-
-## Model conventions
-
-The current public contract deliberately supports a narrow scope:
-
-- USDTRY means TRY per USD;
-- the default conversion side is ask, representing the conservative rate
-  used when buying USD with TRY;
-- supported coupon frequencies are annual, semi-annual and quarterly;
-- day count is ACT/365 Fixed;
-- discount factors are interpolated log-linearly;
-- FX forwards support linear or log-linear interpolation;
-- curve endpoints are held flat and generate an explicit warning;
-- NPV is defined as hedged USD cash-flow PV minus the initial USD budget.
-
-Every successful API response includes these conventions in
-result.model_assumptions.
-
-Read [Model limitations](docs/MODEL_LIMITATIONS.md) before interpreting results.
+The same example is asserted independently in the Python test suite. See
+[Validation](docs/VALIDATION.md) for the complete evidence chain.
 
 ## Architecture
 
@@ -125,9 +102,46 @@ The same request contract is used by manual input and Excel import. See
 [Architecture](docs/ARCHITECTURE.md) and
 [Run valuation contract](contracts/RUN_VALUATION_CONTRACT.md).
 
-## Local development
+## Model scope
 
-### API
+The public contract deliberately supports a narrow, documented scope:
+
+- USDTRY means TRY per USD;
+- the default conversion side is ask, representing the conservative rate used
+  when buying USD with TRY;
+- supported coupon frequencies are annual, semi-annual and quarterly;
+- day count is ACT/365 Fixed;
+- discount factors are interpolated log-linearly;
+- FX forwards support linear or log-linear interpolation;
+- curve endpoints are held flat and generate an explicit warning;
+- NPV is the hedged USD cash-flow present value minus the initial USD budget.
+
+Every successful API response includes these conventions in
+`result.model_assumptions`. Read [Model limitations](docs/MODEL_LIMITATIONS.md)
+before interpreting results.
+
+## Run locally
+
+For an immediate local start, use Docker:
+
+~~~powershell
+git clone https://github.com/Laimon99/tool-bond.git
+cd tool-bond
+docker compose up --build
+~~~
+
+Then open:
+
+- Web app: http://localhost:3000
+- API documentation: http://localhost:8000/docs
+- Health check: http://localhost:8000/health
+
+### Developer setup
+
+<details>
+<summary>Run the API and web app separately</summary>
+
+#### API
 
 ~~~powershell
 cd apps/api
@@ -138,7 +152,7 @@ $env:PERSISTENCE_BACKEND="memory"
 python -m uvicorn app.main:app --reload --port 8000
 ~~~
 
-### Web
+#### Web
 
 Node.js 22.12 or newer is recommended.
 
@@ -148,6 +162,8 @@ npm ci
 $env:NEXT_PUBLIC_API_BASE_URL="http://localhost:8000"
 npm run dev
 ~~~
+
+</details>
 
 ### Quality gates
 
@@ -181,18 +197,18 @@ docs/              architecture, validation and model scope
 
 ## Privacy and security
 
-- Real/client source files under data/ are ignored.
+- Real or client source files under `data/` are ignored.
 - Runtime artifacts, uploaded data and local runs are ignored.
 - The default Docker profile uses in-memory persistence.
-- Do not submit confidential workbooks in issues or pull requests.
+- Confidential workbooks must not be submitted in issues or pull requests.
 
-See [Security policy](SECURITY.md).
+See the [security policy](SECURITY.md).
 
 ## Project status
 
-BondFX is a complete public PoC, not a production valuation platform. Planned
-extensions are tracked in [ROADMAP.md](ROADMAP.md). Maintainers can use the
-[public-release settings](docs/PUBLIC_RELEASE.md) and
+BondFX is a complete public proof of concept, not a production valuation
+platform. Planned extensions are tracked in [ROADMAP.md](ROADMAP.md).
+Maintainers can use the [public-release settings](docs/PUBLIC_RELEASE.md) and
 [release checklist](RELEASE_BASELINE_CHECKLIST.md) before changing repository
 visibility.
 
